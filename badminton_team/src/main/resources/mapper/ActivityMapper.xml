@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.badminton_team.dao.ActivityDao">
+
+    <resultMap id="BaseResultMap" type="com.example.badminton_team.entity.Activity">
+        <id column="aid" property="aid" />
+        <result column="title" property="title" />
+        <result column="venue_id" property="venueId" />
+        <result column="location" property="location" />
+        <result column="start_time" property="startTime" />
+        <result column="end_time" property="endTime" />
+        <result column="creator_id" property="creatorId" />
+        <result column="max_players" property="maxPlayers" />
+        <result column="current_players" property="currentPlayers" />
+        <result column="level_require" property="levelRequire" />
+        <result column="description" property="description" />
+        <result column="status" property="status" />
+        <result column="create_time" property="createTime" />
+        <result column="update_time" property="updateTime" />
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        aid, title, venue_id, location, start_time, end_time, creator_id,
+        max_players, current_players, level_require, description,
+        status, create_time, update_time
+    </sql>
+
+    <select id="findByAid" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List" />
+        FROM activity
+        WHERE aid = #{aid}
+    </select>
+
+    <select id="findList" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List" />
+        FROM activity
+        <where>
+            <if test="status != null">
+                AND status = #{status}
+            </if>
+            <if test="startTime != null">
+                AND start_time >= #{startTime}
+            </if>
+            <if test="endTime != null">
+                AND end_time &lt;= #{endTime}
+            </if>
+            <if test="keyword != null and keyword != ''">
+                AND (title LIKE CONCAT('%', #{keyword}, '%') OR description LIKE CONCAT('%', #{keyword}, '%'))
+            </if>
+        </where>
+        ORDER BY start_time ASC
+    </select>
+
+    <select id="findByCreatorId" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List" />
+        FROM activity
+        WHERE creator_id = #{creatorId}
+        ORDER BY create_time DESC
+    </select>
+
+    <insert id="insert" parameterType="com.example.badminton_team.entity.Activity" useGeneratedKeys="true" keyProperty="aid">
+        INSERT INTO activity (title, venue_id, location, start_time, end_time,
+                              creator_id, max_players, current_players, level_require,
+                              description, status, create_time, update_time)
+        VALUES (#{title}, #{venueId}, #{location}, #{startTime}, #{endTime},
+                #{creatorId}, #{maxPlayers}, #{currentPlayers}, #{levelRequire},
+                #{description}, #{status}, NOW(), NOW())
+    </insert>
+
+    <update id="update" parameterType="com.example.badminton_team.entity.Activity">
+        UPDATE activity
+        <set>
+            <if test="title != null">title = #{title},</if>
+            <if test="venueId != null">venue_id = #{venueId},</if>
+            <if test="location != null">location = #{location},</if>
+            <if test="startTime != null">start_time = #{startTime},</if>
+            <if test="endTime != null">end_time = #{endTime},</if>
+            <if test="maxPlayers != null">max_players = #{maxPlayers},</if>
+            <if test="currentPlayers != null">current_players = #{currentPlayers},</if>
+            <if test="levelRequire != null">level_require = #{levelRequire},</if>
+            <if test="description != null">description = #{description},</if>
+            <if test="status != null">status = #{status},</if>
+            update_time = NOW()
+        </set>
+        WHERE aid = #{aid}
+    </update>
+
+    <update id="updateStatus">
+        UPDATE activity SET status = #{status}, update_time = NOW() WHERE aid = #{aid}
+    </update>
+
+    <update id="increaseCurrentPlayers">
+        UPDATE activity SET current_players = current_players + 1 WHERE aid = #{aid} AND current_players &lt; max_players
+    </update>
+
+    <update id="decreaseCurrentPlayers">
+        UPDATE activity SET current_players = current_players - 1 WHERE aid = #{aid} AND current_players > 0
+    </update>
+
+    <select id="selectParticipants" resultType="com.example.badminton_team.entity.vo.ActivityDetailVO$Participant">
+        SELECT u.uid, u.nickname, u.avatar
+        FROM activity_participant ap
+                 JOIN user u ON u.uid = ap.user_id
+        WHERE ap.activity_id = #{aid}
+    </select>
+
+    <select id="selectById" resultType="com.example.badminton_team.entity.Activity">
+        SELECT * FROM activity WHERE aid = #{aid}
+    </select>
+
+    <update id="updateAll" parameterType="com.example.badminton_team.entity.Activity">
+        UPDATE activity
+        SET title = #{title},
+            venue_id = #{venueId},
+            location = #{location},
+            start_time = #{startTime},
+            end_time = #{endTime},
+            max_players = #{maxPlayers},
+            current_players = #{currentPlayers},
+            level_require = #{levelRequire},
+            description = #{description},
+            status = #{status},
+            update_time = NOW()
+        WHERE aid = #{aid}
+    </update>
+</mapper>

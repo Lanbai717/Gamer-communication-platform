@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.badminton_team.dao.MatchWeightDao">
+
+    <resultMap id="MatchWeightMap" type="com.example.badminton_team.entity.MatchWeight">
+        <id column="id" property="id" />
+        <result column="feature_name" property="featureName" />
+        <result column="weight" property="weight" />
+        <result column="update_time" property="updateTime" />
+    </resultMap>
+
+    <select id="findAll" resultMap="MatchWeightMap">
+        SELECT * FROM match_weight
+    </select>
+
+    <select id="findByFeature" resultMap="MatchWeightMap">
+        SELECT * FROM match_weight WHERE feature_name = #{featureName}
+    </select>
+
+</mapper>

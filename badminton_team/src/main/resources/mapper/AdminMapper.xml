@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.badminton_team.dao.AdminDao">
+    <resultMap id="BaseResultMap" type="com.example.badminton_team.entity.Admin">
+        <id column="aid" property="aid" />
+        <result column="username" property="username" />
+        <result column="password" property="password" />
+        <result column="nickname" property="nickname" />
+        <result column="avatar" property="avatar" />
+        <result column="status" property="status" />
+        <result column="create_time" property="createTime" />
+        <result column="update_time" property="updateTime" />
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        aid, username, password, nickname, avatar, status, create_time, update_time
+    </sql>
+
+    <select id="findByUsername" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List" />
+        FROM admin
+        WHERE username = #{username}
+    </select>
+
+    <select id="findByAid" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List" />
+        FROM admin
+        WHERE aid = #{aid}
+    </select>
+
+    <insert id="insert" parameterType="com.example.badminton_team.entity.Admin" useGeneratedKeys="true" keyProperty="aid">
+        INSERT INTO admin (username, password, nickname, avatar, status, create_time, update_time)
+        VALUES (#{username}, #{password}, #{nickname}, #{avatar}, #{status}, #{createTime}, #{updateTime})
+    </insert>
+
+    <update id="update" parameterType="com.example.badminton_team.entity.Admin">
+        UPDATE admin
+        <set>
+            <if test="nickname != null">nickname = #{nickname},</if>
+            <if test="avatar != null">avatar = #{avatar},</if>
+            <if test="status != null">status = #{status},</if>
+            update_time = NOW()
+        </set>
+        WHERE aid = #{aid}
+    </update>
+
+    <update id="updateStatus">
+        UPDATE admin SET status = #{status}, update_time = NOW() WHERE aid = #{aid}
+    </update>
+</mapper>

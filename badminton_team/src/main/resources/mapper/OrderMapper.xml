@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.badminton_team.dao.OrderDao">
+
+    <resultMap id="BaseResultMap" type="com.example.badminton_team.entity.Order">
+        <id column="oid" property="oid" />
+        <result column="order_no" property="orderNo" />
+        <result column="user_id" property="userId" />
+        <result column="venue_id" property="venueId" />
+        <result column="book_date" property="bookDate" />
+        <result column="time_slot" property="timeSlot" />
+        <result column="hours" property="hours" />
+        <result column="total_price" property="totalPrice" />
+        <result column="status" property="status" />
+        <result column="create_time" property="createTime" />
+        <result column="pay_time" property="payTime" />
+        <result column="contact_name" property="contactName" />
+        <result column="contact_phone" property="contactPhone" />
+        <result column="need_coach" property="needCoach" />
+        <result column="coach_count" property="coachCount" />
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        oid, order_no, user_id, venue_id, book_date, time_slot, hours,
+        total_price, status, create_time, pay_time, contact_name, contact_phone, need_coach, coach_count
+    </sql>
+
+    <select id="findByOid" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List" />
+        FROM `order`
+        WHERE oid = #{oid}
+    </select>
+
+    <select id="findByOrderNo" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List" />
+        FROM `order`
+        WHERE order_no = #{orderNo}
+    </select>
+
+    <select id="findByUserId" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List" />
+        FROM `order`
+        WHERE user_id = #{userId}
+        ORDER BY create_time DESC
+    </select>
+
+    <!-- 查询指定场地列表的所有订单（不分页） -->
+    <select id="findByVenueIds" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List" />
+        FROM `order`
+        WHERE venue_id IN
+        <foreach item="vid" collection="venueIds" open="(" separator="," close=")">
+            #{vid}
+        </foreach>
+        ORDER BY book_date DESC, create_time DESC
+    </select>
+
+    <!-- 分页查询商家的订单（根据场地ID列表） -->
+    <select id="findPageByVenueIds" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List" />
+        FROM `order`
+        WHERE venue_id IN
+        <foreach item="vid" collection="venueIds" open="(" separator="," close=")">
+            #{vid}
+        </foreach>
+        <if test="status != null">
+            AND status = #{status}
+        </if>
+        ORDER BY book_date DESC, create_time DESC
+        LIMIT #{offset}, #{size}
+    </select>
+
+    <!-- 统计商家的订单数量 -->
+    <select id="countByVenueIds" resultType="long">
+        SELECT COUNT(*)
+        FROM `order`
+        WHERE venue_id IN
+        <foreach item="vid" collection="venueIds" open="(" separator="," close=")">
+            #{vid}
+        </foreach>
+        <if test="status != null">
+            AND status = #{status}
+        </if>
+    </select>
+
+    <insert id="insert" parameterType="com.example.badminton_team.entity.Order" useGeneratedKeys="true" keyProperty="oid">
+        INSERT INTO `order` (order_no, user_id, venue_id, book_date, time_slot, hours,
+                             total_price, status, create_time, contact_name, contact_phone,
+                             need_coach, coach_count)
+        VALUES (#{orderNo}, #{userId}, #{venueId}, #{bookDate}, #{timeSlot}, #{hours},
+                #{totalPrice}, #{status}, NOW(), #{contactName}, #{contactPhone},
+                #{needCoach}, #{coachCount})
+    </insert>
+
+    <update id="updateStatus">
+        UPDATE `order` SET status = #{status}
+        <if test="status == 1">, pay_time = NOW()</if>
+        WHERE oid = #{oid}
+    </update>
+
+    <select id="countConflict" resultType="int">
+        SELECT COUNT(*)
+        FROM `order`
+        WHERE venue_id = #{venueId}
+          AND book_date = #{bookDate}
+          AND time_slot = #{timeSlot}
+          AND status IN (0, 1)
+    </select>
+
+    <select id="countAll" resultType="long">
+        SELECT COUNT(*) FROM `order`
+    </select>
+
+    <select id="findBookedByVenueAndDate" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List" />
+        FROM `order`
+        WHERE venue_id = #{venueId} AND book_date = #{date} AND status IN (0, 1)
+    </select>
+
+    <update id="updatePayTime" parameterType="com.example.badminton_team.entity.Order">
+        UPDATE `order` SET pay_time = #{payTime} WHERE oid = #{oid}
+    </update>
+
+    <select id="selectByUser" resultMap="BaseResultMap">
+        SELECT o.*,
+        CONCAT(IFNULL(m.company_name,'未知场馆'),
+        IF(v.code IS NOT NULL, CONCAT(' ', v.code), '')
+        ) AS venue_name
+        FROM `order` o
+        LEFT JOIN venue v ON o.venue_id = v.vid
+        LEFT JOIN merchant m ON v.owner_id = m.mid
+        WHERE o.user_id = #{uid}
+        <if test="status != null">
+            AND o.status = #{status}
+        </if>
+        ORDER BY o.create_time DESC
+    </select>
+
+    <select id="selectByMerchant" resultMap="BaseResultMap">
+        SELECT o.*,
+        CONCAT(IFNULL(m.company_name,'未知场馆'),
+        IF(v.code IS NOT NULL, CONCAT(' ', v.code), '')
+        ) AS venue_name
+        FROM `order` o
+        LEFT JOIN venue v ON o.venue_id = v.vid
+        LEFT JOIN merchant m ON v.owner_id = m.mid
+        WHERE o.venue_id IN (
+        SELECT vid FROM venue WHERE owner_id = #{merchantId}
+        )
+        <if test="status != null">
+            AND o.status = #{status}
+        </if>
+        ORDER BY o.create_time DESC
+    </select>
+</mapper>

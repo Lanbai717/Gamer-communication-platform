@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.badminton_team.dao.VenueDao">
+
+    <resultMap id="BaseResultMap" type="com.example.badminton_team.entity.Venue">
+        <id column="vid" property="vid" />
+        <result column="code" property="code" />
+        <result column="description" property="description" />
+        <result column="price_per_hour" property="pricePerHour" />
+        <result column="photos" property="photos" />
+        <result column="owner_id" property="ownerId" />
+        <result column="status" property="status" />
+        <result column="create_time" property="createTime" />
+        <result column="update_time" property="updateTime" />
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        vid, code, description, price_per_hour, photos, owner_id, status, create_time, update_time
+    </sql>
+
+    <select id="findByVid" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List" />
+        FROM venue
+        WHERE vid = #{vid}
+    </select>
+
+    <select id="findAll" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List" />
+        FROM venue
+        <where>
+            <if test="status != null">
+                status = #{status}
+            </if>
+            <if test="keyword != null and keyword != ''">
+                AND (name LIKE CONCAT('%', #{keyword}, '%') OR address LIKE CONCAT('%', #{keyword}, '%'))
+            </if>
+        </where>
+    </select>
+
+    <select id="findByOwnerId" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List" />
+        FROM venue
+        WHERE owner_id = #{ownerId}
+        ORDER BY create_time DESC
+    </select>
+
+    <insert id="insert" parameterType="com.example.badminton_team.entity.Venue" useGeneratedKeys="true" keyProperty="vid">
+        INSERT INTO venue (code, description, price_per_hour, photos, owner_id, status, create_time, update_time)
+        VALUES (#{code}, #{description}, #{pricePerHour}, #{photos}, #{ownerId}, #{status}, NOW(), NOW())
+    </insert>
+
+    <update id="update" parameterType="com.example.badminton_team.entity.Venue">
+        UPDATE venue
+        <set>
+            <if test="code != null">code = #{code},</if>
+            <if test="description != null">description = #{description},</if>
+            <if test="pricePerHour != null">price_per_hour = #{pricePerHour},</if>
+            <if test="photos != null">photos = #{photos},</if>
+            <if test="status != null">status = #{status},</if>
+            update_time = NOW()
+        </set>
+        WHERE vid = #{vid}
+    </update>
+
+    <update id="updateStatus">
+        UPDATE venue SET status = #{status}, update_time = NOW() WHERE vid = #{vid}
+    </update>
+
+
+</mapper>

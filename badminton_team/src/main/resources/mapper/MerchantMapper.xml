@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.badminton_team.dao.MerchantDao">
+
+    <resultMap id="BaseResultMap" type="com.example.badminton_team.entity.Merchant">
+        <id column="mid" property="mid" />
+        <result column="username" property="username" />
+        <result column="password" property="password" />
+        <result column="company_name" property="companyName" />
+        <result column="contact_person" property="contactPerson" />
+        <result column="contact_phone" property="contactPhone" />
+        <result column="email" property="email" />
+        <result column="address" property="address" />
+        <result column="business_license" property="businessLicense" />
+        <result column="business_hours" property="businessHours" />
+        <result column="facilities" property="facilities" />
+        <result column="detail_intro" property="detailIntro" />
+        <result column="videos" property="videos" />
+        <result column="rules" property="rules" />
+        <result column="venue_photos" property="venuePhotos" />
+        <result column="is_submitted" property="isSubmitted" />
+        <result column="pending_data" property="pendingData" />
+        <result column="status" property="status" />
+        <result column="create_time" property="createTime" />
+        <result column="update_time" property="updateTime" />
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        mid, username, password, company_name, contact_person, contact_phone,
+        email, address, business_license, business_hours, facilities, detail_intro,
+        videos, rules, venue_photos, is_submitted, pending_data, status, create_time, update_time
+    </sql>
+
+    <!-- 查询 -->
+    <select id="findByUsername" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List" />
+        FROM merchant
+        WHERE username = #{username}
+    </select>
+
+    <select id="findByMid" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List" />
+        FROM merchant
+        WHERE mid = #{mid}
+    </select>
+
+    <insert id="insert" parameterType="com.example.badminton_team.entity.Merchant" useGeneratedKeys="true" keyProperty="mid">
+        INSERT INTO merchant (username, password, company_name, contact_person, contact_phone,
+                              email, address, business_license, business_hours, facilities, detail_intro,
+                              videos, rules, venue_photos, is_submitted, pending_data, status, create_time, update_time)
+        VALUES (#{username}, #{password}, #{companyName}, #{contactPerson}, #{contactPhone},
+                #{email}, #{address}, #{businessLicense}, #{businessHours}, #{facilities}, #{detailIntro},
+                #{videos}, #{rules}, #{venuePhotos}, #{isSubmitted}, #{pendingData}, #{status}, NOW(), NOW())
+    </insert>
+
+    <update id="update" parameterType="com.example.badminton_team.entity.Merchant">
+        UPDATE merchant
+        <set>
+            <if test="companyName != null">company_name = #{companyName},</if>
+            <if test="contactPerson != null">contact_person = #{contactPerson},</if>
+            <if test="contactPhone != null">contact_phone = #{contactPhone},</if>
+            <if test="email != null">email = #{email},</if>
+            <if test="address != null">address = #{address},</if>
+            <if test="businessLicense != null">business_license = #{businessLicense},</if>
+            <if test="businessHours != null">business_hours = #{businessHours},</if>
+            <if test="facilities != null">facilities = #{facilities},</if>
+            <if test="detailIntro != null">detail_intro = #{detailIntro},</if>
+            <if test="videos != null">videos = #{videos},</if>
+            <if test="rules != null">rules = #{rules},</if>
+            <if test="venuePhotos != null">venue_photos = #{venuePhotos},</if>
+            <if test="isSubmitted != null">is_submitted = #{isSubmitted},</if>
+            <if test="pendingData != null">pending_data = #{pendingData},</if>
+            <if test="status != null">status = #{status},</if>
+            update_time = NOW()
+        </set>
+        WHERE mid = #{mid}
+    </update>
+
+    <update id="updateStatus">
+        UPDATE merchant SET status = #{status}, update_time = NOW() WHERE mid = #{mid}
+    </update>
+
+    <!-- 其他查询（findAll, findByStatus, findPage, count, countAll）保持不变，但需使用 Base_Column_List -->
+    <select id="findAll" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List" />
+        FROM merchant
+    </select>
+
+    <select id="findByStatus" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List" />
+        FROM merchant
+        WHERE status = #{status}
+    </select>
+
+    <select id="findPage" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List" />
+        FROM merchant
+        <where>
+            <if test="status != null">
+                AND status = #{status}
+            </if>
+            <if test="keyword != null and keyword != ''">
+                AND (username LIKE CONCAT('%', #{keyword}, '%')
+                OR company_name LIKE CONCAT('%', #{keyword}, '%')
+                OR contact_person LIKE CONCAT('%', #{keyword}, '%'))
+            </if>
+        </where>
+        ORDER BY create_time DESC
+        LIMIT #{offset}, #{size}
+    </select>
+
+    <select id="count" resultType="long">
+        SELECT COUNT(*)
+        FROM merchant
+        <where>
+            <if test="status != null">
+                AND status = #{status}
+            </if>
+            <if test="keyword != null and keyword != ''">
+                AND (username LIKE CONCAT('%', #{keyword}, '%')
+                OR company_name LIKE CONCAT('%', #{keyword}, '%')
+                OR contact_person LIKE CONCAT('%', #{keyword}, '%'))
+            </if>
+        </where>
+    </select>
+
+    <select id="countAll" resultType="long">
+        SELECT COUNT(*) FROM merchant
+    </select>
+
+    <select id="findByStatusAndSubmitted" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List" />
+        FROM merchant
+        WHERE status = #{status} AND is_submitted = #{isSubmitted}
+        ORDER BY create_time DESC
+    </select>
+</mapper>

@@ -1,0 +1,52 @@
+server:
+  port: 8080  # 后端端口
+
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/badminton_db?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true&useSSL=false
+    username: root
+    password: 123456
+
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
+
+  mail:
+    host: smtp.qq.com
+    port: 587
+    username: 1848687180@qq.com      # 你的邮箱
+    password: qlriaczfpcpibdij # 授权码
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
+
+
+  jackson:
+    date-format: yyyy-MM-dd HH:mm:ss
+    time-zone: Asia/Shanghai
+
+mybatis:
+  mapper-locations: classpath:mapper/*.xml  # Mapper XML文件位置
+  type-aliases-package: com.example.badminton_team.entity   # 改为当前项目的实体包
+  configuration:
+    map-underscore-to-camel-case: true  # 数据库下划线自动转驼峰
+
+jwt:
+  secret: your-32-character-secret-key-here
+  expiration: 86400000
+
+# 日志级别（可选）
+logging:
+  level:
+    com.example.playbadmintonsys.dao: debug
+    org.springframework.mail: DEBUG
+
+upload:
+  path: D:/graduation/system/picture/   # 确保末尾有斜杠，且路径存在
+  url-prefix: http://localhost:8080/uploads/

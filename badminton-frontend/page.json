@@ -1,0 +1,359 @@
+{
+  "systemName": "badminton-frontend",
+  "summary": "羽毛球约球、场馆预订、社区论坛与后台审核管理前端系统。",
+  "techStack": {
+    "framework": "Vue 3",
+    "buildTool": "Vite",
+    "language": "JavaScript ES Modules",
+    "uiLibrary": "Element Plus",
+    "stateManagement": "Pinia",
+    "routing": "Vue Router history mode",
+    "httpClient": "Axios",
+    "icons": "@element-plus/icons-vue",
+    "regionData": "element-china-area-data",
+    "linting": [
+      "ESLint",
+      "Oxlint"
+    ],
+    "backendBaseUrl": "http://localhost:8080",
+    "authStorage": [
+      "localStorage.token",
+      "localStorage.userInfo",
+      "localStorage.role"
+    ]
+  },
+  "authModel": {
+    "roles": [
+      "guest",
+      "user",
+      "merchant",
+      "admin"
+    ],
+    "routeGuard": "路由通过 meta.requiresAuth 和 meta.role 校验登录状态与角色权限。",
+    "loginRedirects": {
+      "user": "/",
+      "merchant": "/merchant/profile",
+      "admin": "/admin/dashboard"
+    },
+    "unauthorizedBehavior": "未登录访问受保护路由跳转 /login；角色不匹配提示无权限并跳转 /。"
+  },
+  "roles": {
+    "guest": {
+      "name": "游客/未登录用户",
+      "description": "可浏览公开内容，并进入用户、商家、管理员登录入口及用户/商家注册入口。",
+      "pages": [
+        {
+          "path": "/",
+          "name": "home",
+          "title": "首页",
+          "component": "src/views/home/HomePage.vue",
+          "authRequired": false,
+          "description": "展示最新活动和热门场馆。"
+        },
+        {
+          "path": "/login",
+          "name": "userLogin",
+          "title": "用户登录",
+          "component": "src/views/user/UserLogin.vue",
+          "authRequired": false,
+          "description": "普通用户登录。"
+        },
+        {
+          "path": "/register",
+          "name": "userRegister",
+          "title": "用户注册",
+          "component": "src/views/user/UserRegister.vue",
+          "authRequired": false,
+          "description": "普通用户注册，包含邮箱验证码。"
+        },
+        {
+          "path": "/merchant/login",
+          "name": "merchantLogin",
+          "title": "商家登录",
+          "component": "src/views/merchant/MerchantLogin.vue",
+          "authRequired": false,
+          "description": "商家账号登录。"
+        },
+        {
+          "path": "/merchant/register",
+          "name": "merchantRegister",
+          "title": "商家注册",
+          "component": "src/views/merchant/MerchantRegister.vue",
+          "authRequired": false,
+          "description": "商家账号注册，填写场馆名称、联系人等基础资料。"
+        },
+        {
+          "path": "/admin/login",
+          "name": "adminLogin",
+          "title": "管理员登录",
+          "component": "src/views/admin/AdminLogin.vue",
+          "authRequired": false,
+          "description": "管理员账号登录。"
+        },
+        {
+          "path": "/activities",
+          "name": "activities",
+          "title": "约球活动",
+          "component": "src/views/user/UserActivities.vue",
+          "authRequired": false,
+          "description": "浏览活动列表；创建、编辑、报名等操作需要用户身份。"
+        },
+        {
+          "path": "/venues",
+          "name": "venues",
+          "title": "羽毛球场地",
+          "component": "src/views/user/UserMerchantList.vue",
+          "authRequired": false,
+          "description": "浏览场馆/商家列表。"
+        },
+        {
+          "path": "/merchant/:mid",
+          "name": "merchantDetail",
+          "title": "商家详情",
+          "component": "src/views/user/UserMerchantDetail.vue",
+          "authRequired": false,
+          "description": "查看商家详情和场地列表；预订操作面向用户。"
+        },
+        {
+          "path": "/forum",
+          "name": "posts",
+          "title": "社区论坛",
+          "component": "src/views/user/UserPosts.vue",
+          "authRequired": false,
+          "description": "浏览论坛帖子列表。"
+        },
+        {
+          "path": "/forum/:pid",
+          "name": "postDetail",
+          "title": "帖子详情",
+          "component": "src/views/user/UserPostDetail.vue",
+          "authRequired": false,
+          "description": "查看帖子详情和评论。"
+        }
+      ]
+    },
+    "user": {
+      "name": "普通用户",
+      "description": "面向球友的前台角色，可浏览活动和场馆、下单预订、管理订单、发帖评论、维护个人资料、匹配球友和聊天。",
+      "menuPages": [
+        "/",
+        "/activities",
+        "/orders",
+        "/venues",
+        "/forum",
+        "/profile",
+        "/chat",
+        "/find-partner"
+      ],
+      "pages": [
+        {
+          "path": "/",
+          "name": "home",
+          "title": "首页",
+          "component": "src/views/home/HomePage.vue",
+          "authRequired": false,
+          "description": "查看最新活动和热门场馆。"
+        },
+        {
+          "path": "/activities",
+          "name": "activities",
+          "title": "约球活动",
+          "component": "src/views/user/UserActivities.vue",
+          "authRequired": false,
+          "description": "查看全部活动、我创建的活动、我参与的活动，并进行创建、编辑、报名和取消报名。"
+        },
+        {
+          "path": "/venues",
+          "name": "venues",
+          "title": "羽毛球场地",
+          "component": "src/views/user/UserMerchantList.vue",
+          "authRequired": false,
+          "description": "浏览附近场馆/商家。"
+        },
+        {
+          "path": "/merchant/:mid",
+          "name": "merchantDetail",
+          "title": "商家详情",
+          "component": "src/views/user/UserMerchantDetail.vue",
+          "authRequired": false,
+          "description": "查看商家信息、场地列表和场地详情，并发起预订。"
+        },
+        {
+          "path": "/orders",
+          "name": "orders",
+          "title": "我的订单",
+          "component": "src/views/user/UserOrders.vue",
+          "authRequired": true,
+          "requiredRole": "user",
+          "description": "查看订单列表，按状态筛选，并进行支付或取消订单。"
+        },
+        {
+          "path": "/orders/create/:vid",
+          "name": "orderCreate",
+          "title": "创建订单",
+          "component": "src/views/user/UserOrderCreate.vue",
+          "authRequired": true,
+          "requiredRole": "user",
+          "description": "选择日期、时间段、小时数和联系人信息后创建场地预订订单。"
+        },
+        {
+          "path": "/forum",
+          "name": "posts",
+          "title": "社区论坛",
+          "component": "src/views/user/UserPosts.vue",
+          "authRequired": false,
+          "description": "浏览帖子列表。"
+        },
+        {
+          "path": "/forum/create",
+          "name": "postCreate",
+          "title": "发布帖子",
+          "component": "src/views/user/UserPostCreate.vue",
+          "authRequired": true,
+          "requiredRole": "user",
+          "description": "创建论坛帖子。"
+        },
+        {
+          "path": "/forum/:pid",
+          "name": "postDetail",
+          "title": "帖子详情",
+          "component": "src/views/user/UserPostDetail.vue",
+          "authRequired": false,
+          "description": "查看帖子详情、点赞和评论。"
+        },
+        {
+          "path": "/profile",
+          "name": "userProfile",
+          "title": "个人中心",
+          "component": "src/views/user/UserProfile.vue",
+          "authRequired": true,
+          "requiredRole": "user",
+          "description": "查看和编辑昵称、手机号、邮箱、性别、生日、羽毛球等级、地区和个性签名，并查看好友请求入口。"
+        },
+        {
+          "path": "/find-partner",
+          "name": "findPartner",
+          "title": "寻找球友",
+          "component": "src/views/user/FindPartner.vue",
+          "authRequired": true,
+          "requiredRole": "user",
+          "description": "获取推荐球友并发送好友申请。"
+        },
+        {
+          "path": "/friend-requests",
+          "name": "friendRequests",
+          "title": "好友请求",
+          "component": "src/views/user/FriendRequests.vue",
+          "authRequired": true,
+          "requiredRole": "user",
+          "description": "查看收到的好友请求，并同意或拒绝。"
+        },
+        {
+          "path": "/chat",
+          "name": "chat",
+          "title": "我的好友",
+          "component": "src/views/user/Chat.vue",
+          "authRequired": true,
+          "requiredRole": "user",
+          "description": "查看好友列表并进行聊天。"
+        }
+      ]
+    },
+    "merchant": {
+      "name": "商家",
+      "description": "面向场馆经营方的角色，可维护商家资料、提交审核，审核通过后管理场地和订单。",
+      "menuPages": [
+        "/merchant/profile",
+        "/merchant/venues",
+        "/merchant/orders"
+      ],
+      "statusRules": {
+        "statusField": "userInfo.status",
+        "approvedValue": 1,
+        "description": "顶部菜单仅在商家 status 为 1 时显示场地管理和订单管理；页面内部也会提示未审核账号无法管理。"
+      },
+      "pages": [
+        {
+          "path": "/merchant/profile",
+          "name": "merchantProfile",
+          "title": "商家资料",
+          "component": "src/views/merchant/MerchantProfile.vue",
+          "authRequired": true,
+          "requiredRole": "merchant",
+          "description": "查看和编辑公司名称、联系人、电话、邮箱、营业时间、地址、营业执照、场馆详情、图片、视频和使用规则，并提交审核。"
+        },
+        {
+          "path": "/merchant/venues",
+          "name": "merchantVenues",
+          "title": "场地管理",
+          "component": "src/views/merchant/MerchantVenues.vue",
+          "authRequired": true,
+          "requiredRole": "merchant",
+          "requiresApprovedMerchant": true,
+          "description": "管理商家自己的场地，包含新增、编辑、删除、图片预览、价格和状态维护。"
+        },
+        {
+          "path": "/merchant/orders",
+          "name": "merchantOrders",
+          "title": "订单管理",
+          "component": "src/views/merchant/MerchantOrders.vue",
+          "authRequired": true,
+          "requiredRole": "merchant",
+          "requiresApprovedMerchant": true,
+          "description": "查看场地订单，按状态筛选，并确认、拒绝或完成订单。"
+        }
+      ]
+    },
+    "admin": {
+      "name": "管理员",
+      "description": "后台管理角色，可查看系统概览，管理用户，审核商家和帖子。",
+      "menuPages": [
+        "/admin/dashboard",
+        "/admin/users",
+        "/admin/merchants",
+        "/admin/posts"
+      ],
+      "pages": [
+        {
+          "path": "/admin/dashboard",
+          "name": "adminDashboard",
+          "title": "系统概览",
+          "component": "src/views/admin/AdminDashboard.vue",
+          "authRequired": true,
+          "requiredRole": "admin",
+          "description": "查看用户数、商家数、帖子数、订单数等系统统计。"
+        },
+        {
+          "path": "/admin/users",
+          "name": "adminUsers",
+          "title": "用户管理",
+          "component": "src/views/admin/AdminUsers.vue",
+          "authRequired": true,
+          "requiredRole": "admin",
+          "description": "查看用户列表、搜索筛选、查看详情，并启用或禁用用户。"
+        },
+        {
+          "path": "/admin/merchants",
+          "name": "adminMerchants",
+          "title": "商家审核",
+          "component": "src/views/admin/AdminMerchants.vue",
+          "authRequired": true,
+          "requiredRole": "admin",
+          "description": "查看商家列表和详情，审核商家，通过、拒绝、启用或禁用商家。"
+        },
+        {
+          "path": "/admin/posts",
+          "name": "adminPosts",
+          "title": "帖子审核",
+          "component": "src/views/admin/AdminPosts.vue",
+          "authRequired": true,
+          "requiredRole": "admin",
+          "description": "查看帖子列表和详情，审核、封禁、解封或删除帖子。"
+        }
+      ]
+    }
+  },
+  "routeSource": "src/router/index.js",
+  "menuSource": "src/App.vue",
+  "storeSource": "src/stores/user.js"
+}
